@@ -191,8 +191,10 @@ function createIpc<TIncoming, TOutgoing>(
 
 // New argument order is [host, port]. Keep backward compatibility with older
 // callers that only pass [port].
-const HOST = process.argv[3] == null ? '127.0.0.1' : process.argv[2]
-const PORT = process.argv[3] ?? process.argv[2]
+const hostArg = process.argv[2]
+const portArg = process.argv[3]
+const HOST = portArg == null ? '127.0.0.1' : hostArg
+const PORT = portArg ?? hostArg
 
 if (HOST == null || HOST.length === 0) {
   throw new Error('Missing host argument for Turbopack worker IPC')
