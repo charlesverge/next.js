@@ -507,7 +507,11 @@ export async function createHotReloaderTurbopack(
     })
   }
 
-  const projectEnv = { ...(process.env as Record<string, string>) }
+  const projectEnv = Object.fromEntries(
+    Object.entries(process.env).filter(
+      (entry): entry is [string, string] => entry[1] !== undefined
+    )
+  )
   const workerConnection = nextConfig.experimental.turbopackWorkerConnection
   if (workerConnection?.host !== undefined) {
     projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_HOST = workerConnection.host
