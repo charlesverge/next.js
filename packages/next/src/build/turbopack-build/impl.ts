@@ -78,7 +78,7 @@ export async function turbopackBuild(telemetry: Telemetry): Promise<{
       enable: false,
     },
     dev,
-    env: process.env as Record<string, string>,
+    env: projectEnv,
     defineEnv: createDefineEnv({
       isTurbopack: true,
       clientRouterFilters: NextBuildContext.clientRouterFilters!,
@@ -110,6 +110,17 @@ export async function turbopackBuild(telemetry: Telemetry): Promise<{
       projectDir: dir,
       distDir,
     })
+  }
+
+  const projectEnv = { ...(process.env as Record<string, string>) }
+  const workerConnection = config.experimental.turbopackWorkerConnection
+  if (workerConnection?.host !== undefined) {
+    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_HOST = workerConnection.host
+  }
+  if (workerConnection?.port !== undefined) {
+    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_PORT = String(
+      workerConnection.port
+    )
   }
 
   const sharedTurboOptions = {

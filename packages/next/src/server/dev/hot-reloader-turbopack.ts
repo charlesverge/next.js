@@ -507,6 +507,17 @@ export async function createHotReloaderTurbopack(
     })
   }
 
+  const projectEnv = { ...(process.env as Record<string, string>) }
+  const workerConnection = nextConfig.experimental.turbopackWorkerConnection
+  if (workerConnection?.host !== undefined) {
+    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_HOST = workerConnection.host
+  }
+  if (workerConnection?.port !== undefined) {
+    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_PORT = String(
+      workerConnection.port
+    )
+  }
+
   const projectResult = await bindings.turbo.createProject(
     {
       rootPath,
@@ -518,7 +529,7 @@ export async function createHotReloaderTurbopack(
         pollIntervalMs: nextConfig.watchOptions?.pollIntervalMs,
       },
       dev,
-      env: process.env as Record<string, string>,
+      env: projectEnv,
       defineEnv: createDefineEnv({
         isTurbopack: true,
         clientRouterFilters,

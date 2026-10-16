@@ -29,11 +29,12 @@ export type Ipc<TIncoming, TOutgoing> = {
 const CONNECT_FAILED_EXIT_CODE = 69
 
 function createIpc<TIncoming, TOutgoing>(
+  host: string,
   port: number
 ): Ipc<TIncoming, TOutgoing> {
   const socket = createConnection({
     port,
-    host: '127.0.0.1',
+    host,
   })
 
   // If we never connect there is nobody to report errors to, so exit right
@@ -188,9 +189,10 @@ function createIpc<TIncoming, TOutgoing>(
   }
 }
 
-const PORT = process.argv[2]
+const HOST = process.argv[3] ? process.argv[2] : '127.0.0.1'
+const PORT = process.argv[3] ?? process.argv[2]
 
-export const IPC = createIpc<unknown, unknown>(parseInt(PORT, 10))
+export const IPC = createIpc<unknown, unknown>(HOST, parseInt(PORT, 10))
 
 process.on('uncaughtException', (err) => {
   IPC.sendError(err)
