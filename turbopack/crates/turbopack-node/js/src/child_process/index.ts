@@ -195,7 +195,7 @@ const PORT = process.argv[3]
 if (HOST == null || HOST.length === 0) {
   throw new Error('Missing host argument for Turbopack worker IPC')
 }
-if (PORT == null) {
+if (PORT == null || PORT.length === 0) {
   throw new Error('Missing port argument for Turbopack worker IPC')
 }
 
