@@ -67,6 +67,20 @@ export async function turbopackBuild(telemetry: Telemetry): Promise<{
   const persistentCaching =
     config.experimental?.turbopackFileSystemCacheForBuild || false
   const rootPath = config.turbopack?.root || config.outputFileTracingRoot || dir
+  const projectEnv = Object.fromEntries(
+    Object.entries(process.env).filter(
+      (entry): entry is [string, string] => entry[1] !== undefined
+    )
+  )
+  const workerConnection = config.experimental.turbopackWorkerConnection
+  if (workerConnection?.host !== undefined) {
+    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_HOST = workerConnection.host
+  }
+  if (workerConnection?.port !== undefined) {
+    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_PORT = String(
+      workerConnection.port
+    )
+  }
 
   // Shared options for createProject calls
   const sharedProjectOptions: Omit<ProjectOptions, 'debugBuildPaths'> = {
@@ -110,21 +124,6 @@ export async function turbopackBuild(telemetry: Telemetry): Promise<{
       projectDir: dir,
       distDir,
     })
-  }
-
-  const projectEnv = Object.fromEntries(
-    Object.entries(process.env).filter(
-      (entry): entry is [string, string] => entry[1] !== undefined
-    )
-  )
-  const workerConnection = config.experimental.turbopackWorkerConnection
-  if (workerConnection?.host !== undefined) {
-    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_HOST = workerConnection.host
-  }
-  if (workerConnection?.port !== undefined) {
-    projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_PORT = String(
-      workerConnection.port
-    )
   }
 
   const sharedTurboOptions = {
