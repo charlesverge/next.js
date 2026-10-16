@@ -192,8 +192,11 @@ function createIpc<TIncoming, TOutgoing>(
 const HOST = process.argv[2]
 const PORT = process.argv[3]
 
-if (HOST == null || HOST.length === 0 || PORT == null) {
-  throw new Error('Missing host/port arguments for Turbopack worker IPC')
+if (HOST == null || HOST.length === 0) {
+  throw new Error('Missing host argument for Turbopack worker IPC')
+}
+if (PORT == null) {
+  throw new Error('Missing port argument for Turbopack worker IPC')
 }
 
 const parsedPort = parseInt(PORT, 10)
