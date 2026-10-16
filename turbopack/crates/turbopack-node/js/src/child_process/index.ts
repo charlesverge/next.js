@@ -189,10 +189,19 @@ function createIpc<TIncoming, TOutgoing>(
   }
 }
 
-const HOST = process.argv[3] ? process.argv[2] : '127.0.0.1'
-const PORT = process.argv[3] ?? process.argv[2]
+const HOST = process.argv[2]
+const PORT = process.argv[3]
 
-export const IPC = createIpc<unknown, unknown>(HOST, parseInt(PORT, 10))
+if (HOST == null || PORT == null) {
+  throw new Error('Missing host/port arguments for Turbopack worker IPC')
+}
+
+const parsedPort = parseInt(PORT, 10)
+if (Number.isNaN(parsedPort)) {
+  throw new Error(`Invalid Turbopack worker IPC port: ${PORT}`)
+}
+
+export const IPC = createIpc<unknown, unknown>(HOST, parsedPort)
 
 process.on('uncaughtException', (err) => {
   IPC.sendError(err)
