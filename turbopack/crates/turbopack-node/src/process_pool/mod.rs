@@ -318,7 +318,7 @@ impl NodeJsPoolProcess {
         let port = match env.get(&rcstr!("NEXT_TURBOPACK_WORKER_CONNECTION_PORT")) {
             Some(value) => value.parse::<u16>().with_context(|| {
                 format!(
-                    "invalid NEXT_TURBOPACK_WORKER_CONNECTION_PORT value `{value}`; expected an integer in range 0..65535"
+                    "invalid NEXT_TURBOPACK_WORKER_CONNECTION_PORT value `{value}`; expected an integer in range 0..=65535"
                 )
             })?,
             None => 0,
