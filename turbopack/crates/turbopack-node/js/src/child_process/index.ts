@@ -205,7 +205,10 @@ if (PORT == null || PORT.length === 0) {
 
 const parsedPort = parseInt(PORT, 10)
 if (Number.isNaN(parsedPort)) {
-  throw new Error(`Invalid Turbopack worker IPC port: ${PORT}`)
+  throw new Error(
+    `Invalid Turbopack worker IPC port: ${PORT}. ` +
+      `Expected [host, port] arguments (or legacy [port] only).`
+  )
 }
 
 export const IPC = createIpc<unknown, unknown>(HOST, parsedPort)

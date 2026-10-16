@@ -342,13 +342,13 @@ impl NodeJsPoolProcess {
         let listener = TcpListener::bind((listener_host, listener_port))
             .await
             .with_context(|| {
-                let port_description = if listener_port == 0 {
-                    "0 (OS-assigned)"
+                let os_assigned_suffix = if listener_port == 0 {
+                    " (OS-assigned)"
                 } else {
-                    "configured port"
+                    ""
                 };
                 format!(
-                    "binding turbopack worker listener to {listener_host}:{listener_port} ({port_description})"
+                    "binding turbopack worker listener to {listener_host}:{listener_port}{os_assigned_suffix}"
                 )
             })?;
         let port = listener.local_addr().context("getting bound port")?.port();
