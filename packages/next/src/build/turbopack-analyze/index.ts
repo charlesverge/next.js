@@ -52,7 +52,12 @@ export async function turbopackAnalyze(
   const persistentCaching =
     config.experimental?.turbopackFileSystemCacheForBuild || false
   const rootPath = config.turbopack?.root || config.outputFileTracingRoot || dir
-  const projectEnv = { ...(process.env as Record<string, string>) }
+  const projectEnv: Record<string, string> = {}
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value !== undefined) {
+      projectEnv[key] = value
+    }
+  }
   const workerConnection = config.experimental.turbopackWorkerConnection
   if (workerConnection?.host !== undefined) {
     projectEnv.NEXT_TURBOPACK_WORKER_CONNECTION_HOST = workerConnection.host
