@@ -996,6 +996,29 @@ export interface ExperimentalConfig {
   turbopackWorkerAssetPrefix?: string
 
   /**
+   * (`next --turbopack` only) Configure the internal listener endpoint used by
+   * the child-process Turbopack Node.js runtime backend.
+   *
+   * By default, Turbopack binds to `127.0.0.1:0` and lets the OS choose an
+   * available port.
+   */
+  turbopackWorkerConnection?: {
+    /**
+     * Host/interface to bind the internal listener to.
+     *
+     * Defaults to `127.0.0.1`.
+     */
+    host?: string
+    /**
+     * Port to bind the internal listener to. Use `0` to request an OS-assigned
+     * ephemeral port.
+     *
+     * Defaults to `0`.
+     */
+    port?: number
+  }
+
+  /**
    * Enable nested async chunking for client side assets. Defaults to true in build mode and false in dev mode.
    * This optimization computes all possible paths through dynamic imports in the applications to figure out the modules needed at dynamic imports for every path.
    */

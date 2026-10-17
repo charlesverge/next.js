@@ -304,6 +304,28 @@ impl<R: AsyncRead + Unpin, W: AsyncWrite + Unpin> OutputStreamHandler<R, W> {
 }
 
 impl NodeJsPoolProcess {
+    fn worker_connection(
+        env: &FxHashMap<RcStr, RcStr>,
+    ) -> Result<(&str, u16)> {
+        let host = env
+            .get(&rcstr!("NEXT_TURBOPACK_WORKER_CONNECTION_HOST"))
+            .map_or("127.0.0.1", |value| value.as_ref());
+        if host.is_empty() {
+            bail!(
+                "NEXT_TURBOPACK_WORKER_CONNECTION_HOST must not be empty when provided"
+            );
+        }
+        let port = match env.get(&rcstr!("NEXT_TURBOPACK_WORKER_CONNECTION_PORT")) {
+            Some(value) => value.parse::<u16>().with_context(|| {
+                format!(
+                    "invalid NEXT_TURBOPACK_WORKER_CONNECTION_PORT value `{value}`; expected an integer in range 0..=65535"
+                )
+            })?,
+            None => 0,
+        };
+        Ok((host, port))
+    }
+
     async fn new(
         cwd: &Path,
         env: &FxHashMap<RcStr, RcStr>,
@@ -316,16 +338,27 @@ impl NodeJsPoolProcess {
         debug: bool,
     ) -> Result<Self> {
         let guard = duration_span!("Node.js process startup", blocking = false);
-        let listener = TcpListener::bind("127.0.0.1:0")
+        let (listener_host, listener_port) = Self::worker_connection(env)?;
+        let listener = TcpListener::bind((listener_host, listener_port))
             .await
-            .context("binding to a port")?;
-        let port = listener.local_addr().context("getting port")?.port();
+            .with_context(|| {
+                let os_assigned_suffix = if listener_port == 0 {
+                    " (OS-assigned)"
+                } else {
+                    ""
+                };
+                format!(
+                    "binding turbopack worker listener to {listener_host}:{listener_port}{os_assigned_suffix}"
+                )
+            })?;
+        let port = listener.local_addr().context("getting bound port")?.port();
         let mut cmd = Command::new("node");
         cmd.current_dir(cwd);
         if debug {
             cmd.arg("--inspect-brk");
         }
         cmd.arg(entrypoint);
+        cmd.arg(listener_host);
         cmd.arg(port.to_string());
         cmd.env_clear();
         cmd.env(

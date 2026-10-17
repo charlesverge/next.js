@@ -446,6 +446,12 @@ export const experimentalSchema = {
     })
     .optional(),
   turbopackWorkerAssetPrefix: z.string().optional(),
+  turbopackWorkerConnection: z
+    .strictObject({
+      host: z.string().min(1).optional(),
+      port: z.number().int().min(0).max(65535).optional(),
+    })
+    .optional(),
   turbopackClientSideNestedAsyncChunking: z.boolean().optional(),
   turbopackServerSideNestedAsyncChunking: z.boolean().optional(),
   turbopackLazyDynamicImports: z.boolean().optional(),
